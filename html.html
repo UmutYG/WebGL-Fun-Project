@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- SIMPLE CSS CODE TO MAKE THE PROGRAM A BIT PRETTIER. -->
+    <style>
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: sans-serif;
+        background-color: #add8e6;
+      }
+
+      .flex {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .color-picker {
+        background-color: #40bfbf;
+        color: hsl(0, 0%, 100%);
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #settings {
+        margin-left: 20px;
+      }
+
+      .button {
+        background-color: #40bfbf;
+        color: hsl(0, 0%, 100%);
+        padding: 20px;
+        margin-top: 20px;
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+        transition: 0.2s;
+      }
+
+      .button:hover {
+        background-color: #00b0b0;
+      }
+
+      .button:active {
+        background-color: #00a2a2;
+      }
+
+      .button--increase {
+        background-color: #00cc00;
+      }
+
+      .button--increase:hover {
+        background-color: #00b200;
+      }
+
+      .button--increase:active {
+        background-color: #009900;
+      }
+
+      .button--decrease {
+        background-color: #cc0000;
+      }
+
+      .button--decrease:hover {
+        background-color: #b20000;
+      }
+
+      .button--decrease:active {
+        background-color: #990000;
+      }
+
+      .slidecontainer {
+        margin-top: 20px;
+      }
+
+      .choose-letter {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 10vh;
+        padding: 20px;
+      }
+
+      #letter {
+        font-family: sans-serif;
+        font-size: 16px;
+        color: #023333;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        background-color: #f15f5f;
+        transition: 0.2s;
+        font-weight: bold;
+      }
+
+      #letter:hover {
+        background-color: #f4f4f4;
+      }
+
+      #letter:focus {
+        background-color: #e6e6e6;
+        outline: none;
+      }
+
+      .label-letter {
+        margin-right: 10px;
+        font-weight: bold;
+      }
+
+      #scale {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 20px;
+        background: #40bfbf;
+
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: 0.2s;
+        transition: 0.2s;
+      }
+
+      #scale:hover {
+        opacity: 1;
+      }
+
+      #scale::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #00b0b0;
+        cursor: pointer;
+      }
+
+      #scale::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: #00b0b0;
+        cursor: pointer;
+      }
+
+      #random {
+        background-color: #cc0000;
+        margin-bottom: 20px;
+        margin-left: 20px;
+      }
+
+      .option {
+        font-weight: bold;
+        font-size: 16px;
+        color: #000;
+      }
+
+      .button--reset {
+        width: 130px;
+      }
+
+      #direction-button {
+        width: 49%;
+        display: inline-block;
+      }
+      #direction-button--stop {
+        width: 49%;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex">
+      <canvas id="glcanvas" width="1000" height="800"></canvas>
+
+      <div id="settings">
+        <div class="color-picker" id="color-picker">
+          <label for="colorpicker" class="color-picker">Pick Your Color!</label>
+          <input type="color" id="colorpicker" />
+          <button id="random" class="button">Random Mode : OFF</button>
+        </div>
+
+        <div>
+          <button id="direction-button" class="button">
+            Change Rotation Direction
+          </button>
+          <button id="direction-button--stop" class="button">
+            Start Rotation
+          </button>
+        </div>
+
+        <button id="speed-up" class="button button--increase">
+          Increase Speed
+        </button>
+        <button id="slow-down" class="button button--decrease">
+          Decrease Speed
+        </button>
+        <button id="reset" class="button button--reset">Reset</button>
+
+        <div class="slidecontainer">
+          <label for="scale">Scale the letters</label>
+          <input type="range" min="0" max="2" value="1" step="0.2" id="scale" />
+        </div>
+        <div class="choose-letter">
+          <label class="label-letter" for="letter">Choose a letter:</label>
+          <select id="letter">
+            <option class="option" value="U">U</option>
+            <option class="option" value="Z">Z</option>
+            <option class="option" value="Both" selected>Both</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <script id="vertex-shader" type="x-shader/x-vertex">
+          attribute vec4 vPosition;
+
+          uniform float theta;
+          uniform vec2 uScale;
+          uniform vec2 uDirection;
+
+          void main() {
+            gl_Position.x = cos(theta) * vPosition.x - sin(theta) * vPosition.y * uScale.x + uDirection.x;
+            gl_Position.y = sin(theta) * vPosition.x + cos(theta) * vPosition.y * uScale.y + uDirection.y;
+            gl_Position.z = 0.0;
+            gl_Position.w = 1.0;
+
+      }
+    </script>
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform vec4 uColor;
+      void main() {
+         gl_FragColor = uColor;
+      }
+    </script>
+
+    <script src="common/initShaders.js"></script>
+    <script src="common/MV.js"></script>
+    <script src="common/webgl-utils.js"></script>
+    <script src="js.js"></script>
+  </body>
+</html>
